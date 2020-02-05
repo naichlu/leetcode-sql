@@ -123,3 +123,100 @@ HAVING COUNT(employee_id) >= ALL (
     SELECT COUNT(employee_id)
     FROM Project
     GROUP BY project_id)
+
+
+-- 1294. Weather Type in Each Country
+SELECT country_name, 
+(case when avg(weather_state)<=15 then 'Cold' when avg(weather_state)>=25 then 'Hot' else 'Warm' end  ) as weather_type
+FROM Weather a
+LEFT Join Countries b
+ON a.country_id = b.country_id
+where month(day)=11
+group by a.country_id
+
+-- 1113. Reported Posts
+SELECT extra as report_reason, 
+COUNT(DISTINCT post_id) AS report_count
+FROM Actions
+where action = 'report' AND action_date = '2019-07-04'
+Group By extra
+
+-- 1322. Ads Performance
+select ad_id, 
+round(ifnull(sum(case when action='Clicked' then 1 else 0 end)/sum(case when action='Clicked' or action= 'Viewed' then 1 else 0 end)*100,0) ,2) as ctr
+from ads
+group by ad_id
+order by ctr desc,ad_id
+
+-- 1084. Sales Analysis III
+SELECT p.product_id, product_name
+FROM Product AS p
+JOIN Sales AS s
+USING (product_id)
+GROUP BY s.product_id
+HAVING SUM(IF(sale_date BETWEEN '2019-01-01' AND '2019-03-31', 1, 0)) = COUNT(*)
+
+-- 1141. User Activity for the Past 30 Days I
+SELECT activity_date AS day, COUNT(DISTINCT user_id) AS active_users
+FROM Activity
+WHERE activity_date BETWEEN DATE_SUB(DATE("2019-07-27"), INTERVAL 29 DAY) AND DATE("2019-07-27") 
+GROUP BY activity_date;
+
+-- 1083. Sales Analysis II
+SELECT distinct buyer_id
+FROM Sales s
+JOIN Product p ON s.product_id = p.product_id
+WHERE product_name = 'S8 ' AND buyer_id NOT IN (SELECT buyer_id
+FROM Sales sp
+JOIN Product ps ON sp.product_id = ps.product_id
+WHERE product_name = 'iPhone')
+
+-- 1142. User Activity for the Past 30 Days II 
+-- DO IT AGAIN!!!!!!!!!
+select ifnull(round(sum(cnt)/count(user_id),2),0) AS average_sessions_per_user
+from
+(select user_id, count(distinct session_id) cnt
+from activity
+where activity_date<='2019-07-27'
+and activity_date>='2019-06-28'
+group by user_id) temp
+
+-- 178. Rank Scores
+-- ？？？？
+select Score, rank
+from Scores a
+left join
+    (select dscore, @rank := @rank + 1 as rank
+    from 
+        (select distinct Score as dscore
+        from Scores
+        order by dscore desc) s,
+        (select @rank := 0) r
+     ) as b
+on a.Score = b.dscore
+order by Score desc
+
+-- 1212. Team Scores in Football Tournament
+-- 三层比较与赋值
+select team_id, team_name,
+sum(case when team_id = host_team then if (host_goals < guest_goals,0,if(host_goals = guest_goals,1,3))
+else if (host_goals < guest_goals,3,if(host_goals = guest_goals,1,0) )
+end
+) AS num_points
+from teams
+left join matches
+on team_id = host_team or team_id = guest_team
+group by team_id
+order by num_points desc, team_id asc
+
+-- 608. Tree Node
+-- 树状图
+select id, 
+case 
+when p_id is null then 'Root'
+when id in (select distinct p_id from tree) then 'Inner'
+else 'Leaf'  
+end 
+AS Type        
+from tree 
+order by id
