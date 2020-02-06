@@ -220,3 +220,42 @@ end
 AS Type        
 from tree 
 order by id
+
+-- 1270. All People Report to the Given Manager
+-- 不同层级的传递
+select employee_id from employees where employee_id!=1 and manager_id =1
+union
+
+select employee_id from Employees where manager_id in
+(select employee_id from employees where employee_id!=1 and manager_id =1) 
+union 
+
+select employee_id from Employees where manager_id in
+(select employee_id from Employees where manager_id in
+(select employee_id from employees where employee_id!=1 and manager_id =1) )
+
+-- 1308. Running Total for Different Genders
+-- 做以上所有的和
+select a.gender,a.day,sum(b.score_points) as total
+from scores a
+left join scores b
+on a.gender=b.gender
+and a.day>=b.day
+group by 1,2
+order by 1,2
+
+-- 1285. Find the Start and End Number of Continuous Ranges
+-- 连续数组的挑选
+select
+log_id as "start_id", 
+(
+    select log_id from logs n 
+    where n.log_id >= l.log_id 
+    and not exists (
+        select log_id from logs p where p.log_id = n.log_id + 1)
+    order by log_id limit 1
+) as "end_id"
+from logs l 
+where not exists (
+    select log_id from logs m 
+    where l.log_id = m.log_id + 1)
