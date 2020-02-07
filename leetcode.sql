@@ -293,3 +293,20 @@ group by 1) as c
 on b.occurences>c.occurences and b.event_type=c.event_type
 group by b.business_id
 having count(b.business_id)>1
+
+-- 1045. Customers Who Bought All Products
+SELECT customer_id from Customer group by customer_id
+HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product)
+
+-- 1204. Last Person to Fit in the Elevator
+-- 小于累加+名字对应
+select person_name
+from (select q1.person_name,
+       sum(q2.weight) as cul_weight 
+from queue q1 
+join queue q2
+where q1.turn >= q2.turn 
+group by q1.turn) q3
+where cul_weight <= 1000
+order by cul_weight desc
+limit 1
