@@ -259,3 +259,37 @@ from logs l
 where not exists (
     select log_id from logs m 
     where l.log_id = m.log_id + 1)
+
+-- 1077. Project Employees III
+select p.project_id, p.employee_id
+from project p
+inner join 
+employee e
+on p.employee_id = e.employee_id
+where (p.project_id, e.experience_years ) in 
+(
+select p.project_id, max(e.experience_years)
+from project p
+inner join 
+employee e
+on p.employee_id = e.employee_id
+group by p.project_id
+)
+
+-- 534. Game Play Analysis III
+SELECT a.player_id, a.event_date, 
+sum(b.games_played)
+AS games_played_so_far
+FROM Activity a
+LEFT Join Activity b
+ON a.player_id = b.player_id AND a.event_date >= b.event_date
+group by player_id,event_date
+
+-- 1126. Active Businesses
+select b.business_id from Events as b
+inner join (select event_type,avg(occurences) as occurences
+from Events
+group by 1) as c
+on b.occurences>c.occurences and b.event_type=c.event_type
+group by b.business_id
+having count(b.business_id)>1
