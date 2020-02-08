@@ -321,3 +321,31 @@ select left(trans_date,7) as month,country, state, amount
 from transactions
 ) x
 group by month, country
+
+-- 1112. Highest Grade For Each Student
+-- 挑选一组里面的最大分数对应的全部variables组
+select student_id, min(course_id) as course_id,grade
+from Enrollments
+where (student_id, grade) in (
+(select student_id, max(grade) from Enrollments group by student_id) )
+group by student_id
+order by student_id
+
+-- 1264. Page Recommendations
+-- 推荐联动选择
+select distinct page_id as recommended_page
+from likes
+where
+page_id not in (select page_id from likes where user_id =1)
+and
+user_id in
+(select user2_id from friendship where user1_id =1
+union
+select user1_id from friendship where user2_id =1)
+
+-- 570. Managers with at Least 5 Direct Reports
+SELECT Name From Employee
+Where Id IN(
+SELECT ManagerId
+From Employee Group By ManagerId
+Having count(ManagerId) >= 5)
