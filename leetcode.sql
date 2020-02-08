@@ -310,3 +310,14 @@ group by q1.turn) q3
 where cul_weight <= 1000
 order by cul_weight desc
 limit 1
+
+-- 1193. Monthly Transactions I
+-- 再看！！！
+select x.month, x.country, count(x.state) as trans_count, sum(case when state='approved' then 1 else 0 end) as approved_count,sum(x.amount) as trans_total_amount, 
+sum(case when state='approved' then amount else 0 end) as approved_total_amount
+from
+(
+select left(trans_date,7) as month,country, state, amount
+from transactions
+) x
+group by month, country
