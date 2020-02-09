@@ -349,3 +349,16 @@ Where Id IN(
 SELECT ManagerId
 From Employee Group By ManagerId
 Having count(ManagerId) >= 5)
+
+-- 1321. Restaurant Growth
+-- datediff的用法 how much customer paid in a 7 days window
+select a1.visited_on, sum(a2.amount) as amount, round(sum(a2.amount)/7,2) as average_amount from
+(select distinct visited_on from Customer
+) as a1
+cross join Customer as a2
+where
+a1.visited_on >='2019-01-07'
+and a2.visited_on<=a1.visited_on
+and datediff(a1.visited_on,a2.visited_on) between 0 and 6
+group by 1
+having datediff(a1.visited_on, min(a2.visited_on))=6
